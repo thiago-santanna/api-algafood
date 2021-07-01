@@ -2,13 +2,16 @@ package com.tsswebapps.algafood.api.controller;
 
 import java.util.List;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -43,5 +46,31 @@ public class CozinhaController {
 	@ResponseStatus(HttpStatus.CREATED)
 	public Cozinha adicionar(@RequestBody Cozinha cozinha){
 		return cozinhaRepository.salvar(cozinha); 
+	}
+	
+	@PutMapping("/{cozinhaId}")
+	@ResponseStatus(HttpStatus.OK)
+	public ResponseEntity<Cozinha> atualizar(@PathVariable Long cozinhaId, 
+			@RequestBody Cozinha cozinha) {
+		Cozinha cozinhaAtual = cozinhaRepository.buscar(cozinhaId);
+		
+		if(cozinhaAtual != null) {		
+			BeanUtils.copyProperties (cozinha, cozinhaAtual, "id");
+			return ResponseEntity.ok(cozinhaRepository.salvar(cozinhaAtual));
+		}
+		
+		return ResponseEntity.notFound().build();
+	}
+	
+	@DeleteMapping("/{cozinhaId}")
+	public ResponseEntity<Cozinha> remover(@PathVariable Long cozinhaId){
+		Cozinha cozinha = cozinhaRepository.buscar(cozinhaId);
+		
+		if(cozinha != null) {
+			cozinhaRepository.remover(cozinha);
+			return ResponseEntity.noContent().build();
+		}
+		
+		return ResponseEntity.notFound().build();
 	}
 }
